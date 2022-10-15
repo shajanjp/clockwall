@@ -43,7 +43,7 @@ function getContactTimeCardHtml(contact) {
   const containerElm = document.createElement("div");
   containerElm.setAttribute(
     "class",
-    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center"
+    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto"
   );
 
   if(contact.self) {
