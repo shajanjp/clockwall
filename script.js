@@ -9,7 +9,7 @@ let contacts = [
     timeZone: "America/Los_Angeles",
   },
   {
-    name: "Akash",
+    name: "Akash Manoj",
     timeZone: "Asia/Kolkata",
   },
 ];
@@ -24,7 +24,7 @@ function getContactTimeCardHtml(contact) {
   imageContainerElement.appendChild(imageElm);
 
   const nameContainerElm = document.createElement("div");
-  nameContainerElm.setAttribute("class", "font-bold text-xl");
+  nameContainerElm.setAttribute("class", "text-xl");
   nameContainerElm.appendChild(document.createTextNode(contact.name));
 
 //   const timeZoneElm = document.createElement("div");
