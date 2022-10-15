@@ -571,6 +571,10 @@ video {
   display: flex;
 }
 
+.h-8 {
+  height: 2rem;
+}
+
 .h-20 {
   height: 5rem;
 }
@@ -579,8 +583,8 @@ video {
   height: 1.5rem;
 }
 
-.h-8 {
-  height: 2rem;
+.w-8 {
+  width: 2rem;
 }
 
 .w-20 {
@@ -591,8 +595,8 @@ video {
   width: 1.5rem;
 }
 
-.w-8 {
-  width: 2rem;
+.w-full {
+  width: 100%;
 }
 
 .cursor-pointer {
@@ -637,14 +641,14 @@ video {
   background-color: rgb(241 245 249 / var(--tw-bg-opacity));
 }
 
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
 .bg-green-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(134 239 172 / var(--tw-bg-opacity));
+}
+
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .p-10 {
@@ -669,22 +673,22 @@ video {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
-.text-gray-600 {
-  --tw-text-opacity: 1;
-  color: rgb(75 85 99 / var(--tw-text-opacity));
-}
-
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
-.opacity-80 {
-  opacity: 0.8;
+.text-gray-600 {
+  --tw-text-opacity: 1;
+  color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
 .opacity-60 {
   opacity: 0.6;
+}
+
+.opacity-80 {
+  opacity: 0.8;
 }
 
 .shadow-lg {
@@ -704,55 +708,18 @@ video {
   --tw-shadow: var(--tw-shadow-colored);
 }
 
-.clockbox,
-.clock {
-  width: 100%;
-  height: 100%;
+@media (min-width: 640px) {
+  .sm\:w-full {
+    width: 100%;
+  }
+
+  .sm\:w-auto {
+    width: auto;
+  }
 }
 
-/* Clock styles */
-
-.circle {
-  fill: none;
-  stroke: #000;
-  stroke-width: 9;
-  stroke-miterlimit: 10;
-}
-
-.mid-circle {
-  fill: #000;
-}
-
-.hour-marks {
-  fill: none;
-  stroke: #000;
-  stroke-width: 9;
-  stroke-miterlimit: 10;
-}
-
-.hour-arm {
-  fill: none;
-  stroke: #000;
-  stroke-width: 17;
-  stroke-miterlimit: 10;
-}
-
-.minute-arm {
-  fill: none;
-  stroke: #000;
-  stroke-width: 11;
-  stroke-miterlimit: 10;
-}
-
-.second-arm {
-  fill: none;
-  stroke: #000;
-  stroke-width: 4;
-  stroke-miterlimit: 10;
-}
-
-/* Transparent box ensuring arms center properly. */
-
-.sizing-box {
-  fill: none;
+@media (min-width: 768px) {
+  .md\:basis-1\/4 {
+    flex-basis: 25%;
+  }
 }
