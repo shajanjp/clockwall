@@ -24,7 +24,7 @@ function getContactTimeCardHtml(contact) {
   imageContainerElement.appendChild(imageElm);
 
   const nameContainerElm = document.createElement("div");
-  nameContainerElm.setAttribute("class", "font-bold text-gray-800");
+  nameContainerElm.setAttribute("class", "font-bold text-xl");
   nameContainerElm.appendChild(document.createTextNode(contact.name));
 
 //   const timeZoneElm = document.createElement("div");
@@ -32,7 +32,6 @@ function getContactTimeCardHtml(contact) {
 //   timeZoneElm.appendChild(document.createTextNode(contact.timeZone));
 
   const timeElm = document.createElement("span");
-  timeElm.setAttribute("class", "text-gray-700");
   timeElm.appendChild(document.createTextNode('Jan 1, 00:00 AM'));
 
   const nameAndDetailsContainerElm = document.createElement("div");
@@ -43,14 +42,17 @@ function getContactTimeCardHtml(contact) {
   const containerElm = document.createElement("div");
   containerElm.setAttribute(
     "class",
-    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto"
+    "rounded-2xl shadow-xl p-6 flex flex-row gap-4 items-center w-full sm:w-auto"
   );
 
   if(contact.self) {
-    containerElm.classList.add('shadow-green-200');
-    containerElm.classList.add('bg-green-300');
+    containerElm.classList.add('shadow-green-200', 'bg-green-300', 'dark:shadow-green-900');
+    nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-600')
+    timeElm.classList.add("text-gray-700", "dark:text-gray-500");
   } else {
-    containerElm.classList.add('bg-white');
+    containerElm.classList.add('bg-white', 'dark:bg-gray-600');
+    nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-200')
+    timeElm.classList.add("text-gray-700", "dark:text-gray-400");
   }
   containerElm.setAttribute("id", formatedPersonName);
 
