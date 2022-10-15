@@ -16,9 +16,6 @@ let contacts = [
 const contactsListElm = document.getElementById("contacts-list");
 
 function getContactTimeCardHtml(contact) {
-    const { month, day, hour, minute, dayPeriod } = getTimeforTimezone(contact.timeZone);
-    const formattedTime = `${month} ${day}, ${hour}:${minute} ${dayPeriod}`;
-
   const formatedPersonName = contact.name.toLowerCase().replaceAll(" ", "-");
   const imageContainerElement = document.createElement("div");
   const imageElm = document.createElement("img");
@@ -36,7 +33,7 @@ function getContactTimeCardHtml(contact) {
 
   const timeElm = document.createElement("span");
   timeElm.setAttribute("class", "text-gray-700");
-  timeElm.appendChild(document.createTextNode(formattedTime));
+  timeElm.appendChild(document.createTextNode('Jan 1, 00:00 AM'));
 
   const nameAndDetailsContainerElm = document.createElement("div");
   nameAndDetailsContainerElm.appendChild(nameContainerElm);
@@ -63,13 +60,14 @@ function getContactTimeCardHtml(contact) {
   return { element: containerElm, timeElement: timeElm, imageElement: imageElm };
 }
 
-const selfContactCardElm = getContactTimeCardHtml({ name: 'Me', timeZone: 'Asia/Kolkata', self: true}).element;
-contactsListElm.appendChild(selfContactCardElm) 
+contacts.unshift({ name: 'Me', timeZone: 'Asia/Kolkata', self: true}).element;
+
 for (const contact of contacts) {
   const { element, timeElement, imageElement } = getContactTimeCardHtml(contact);
   contact.element = element;
   contact.timeElement = timeElement;
   contact.imageElement = imageElement;
+  updateContactCard(contact);
   contactsListElm.appendChild(contact.element);
 }
 
@@ -81,7 +79,10 @@ function updateContactCards() {
 
 function updateContactCard(contact) {
   const { month, day, hour, minute, dayPeriod } = getTimeforTimezone(contact.timeZone);
-  contact.timeElement.innerText = `${month} ${day}, ${hour}:${minute} ${dayPeriod}`; 
+  contact.timeElement.innerText = `${month} ${day}, ${hour}:${minute} ${dayPeriod}`;
+  const isNight = (dayPeriod === 'PM' && parseInt(hour) >= 7) || (dayPeriod === 'AM' && parseInt(hour) < 7);
+  const dayNightImage = isNight ? 'img/moon.png' : 'img/sun.png'
+  contact.imageElement.setAttribute('src', dayNightImage); 
 }
 
 function getTimeforTimezone(timeZone) {
