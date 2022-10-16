@@ -42,13 +42,13 @@ function getContactTimeCardHtml(contact) {
   const containerElm = document.createElement("div");
   containerElm.setAttribute(
     "class",
-    "rounded-2xl shadow-xl p-6 flex flex-row gap-4 items-center w-full sm:w-auto"
+    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto"
   );
 
   if(contact.self) {
-    containerElm.classList.add('shadow-green-200', 'bg-green-300', 'dark:shadow-green-900');
-    nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-600')
-    timeElm.classList.add("text-gray-700", "dark:text-gray-500");
+    containerElm.classList.add('shadow-green-200', 'dark:shadow-green-900', 'bg-green-300', 'dark:bg-green-700');
+    nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-100')
+    timeElm.classList.add("text-gray-700", "dark:text-gray-200");
   } else {
     containerElm.classList.add('bg-white', 'dark:bg-gray-600');
     nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-200')
@@ -113,4 +113,4 @@ function getTimeforTimezone(timeZone) {
   return dateFormatted;
 }
 
-setInterval(updateContactCards, 1000);
+setInterval(updateContactCards, 30000);
