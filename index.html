@@ -15,9 +15,19 @@
       <img title="Add a person" class="w-6 h-6 opacity-80" src="img/plus.png" alt="">
     </div>
   </button>
-  <!-- <div id="add-new-person-window" class="w-auto h-200 bg-white shadow-2xl border-slate-200">
-Something goes here
-  </div> -->
+  <div id="add-new-person-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style="display: none;">
+    <div id="add-new-person-window" class="w-auto p-6 bg-white dark:bg-gray-700 shadow-lg rounded-2xl">
+      <form id="add-new-person-form" class="flex flex-col gap-4">
+        <h2 class="text-lg font-bold dark:text-white">Add new person</h2>
+        <input type="text" name="name" id="new-person-name" placeholder="Name" class="p-2 border border-slate-200 rounded-lg dark:bg-gray-600 dark:text-white dark:border-gray-500">
+        <select name="timezone" id="new-person-timezone" class="p-2 border border-slate-200 rounded-lg dark:bg-gray-600 dark:text-white dark:border-gray-500"></select>
+        <div class="flex flex-col gap-2">
+            <button type="button" id="cancel-modal-button" class="p-2 bg-gray-300 dark:bg-gray-500 text-black dark:text-white rounded-lg">Cancel</button>
+            <button type="submit" class="p-2 bg-blue-500 text-white rounded-lg">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
   
   
 </div>

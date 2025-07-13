@@ -122,3 +122,51 @@ function getTimeforTimezone(timeZone) {
 }
 
 setInterval(updateContactCards, 30000);
+
+const addNewPersonButton = document.getElementById("add-new-person");
+const addNewPersonOverlay = document.getElementById("add-new-person-overlay");
+const addNewPersonWindow = document.getElementById("add-new-person-window");
+const addNewPersonForm = document.getElementById("add-new-person-form");
+const newPersonTimezoneElm = document.getElementById("new-person-timezone");
+const cancelModalButton = document.getElementById("cancel-modal-button");
+
+for (const timeZone of aryIannaTimeZones) {
+    const option = document.createElement("option");
+    option.value = timeZone;
+    option.innerText = timeZone;
+    newPersonTimezoneElm.appendChild(option);
+}
+
+addNewPersonButton.addEventListener("click", () => {
+    addNewPersonOverlay.style.display = "flex";
+});
+
+cancelModalButton.addEventListener("click", () => {
+    addNewPersonOverlay.style.display = "none";
+});
+
+addNewPersonOverlay.addEventListener("click", (e) => {
+    if (e.target === addNewPersonOverlay) {
+        addNewPersonOverlay.style.display = "none";
+    }
+});
+
+addNewPersonForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = e.target.name.value;
+    const timeZone = e.target.timezone.value;
+    if (!name || !timeZone) {
+        return;
+    }
+    const newContact = { name, timeZone };
+    const { element, timeElement, imageElement } = getContactTimeCardHtml(newContact);
+    newContact.element = element;
+    newContact.timeElement = timeElement;
+    newContact.imageElement = imageElement;
+    contacts.push(newContact);
+    updateContactCard(newContact);
+    contactsListElm.appendChild(element);
+    addNewPersonOverlay.style.display = "none";
+    e.target.name.value = "";
+    e.target.timezone.value = "";
+});
