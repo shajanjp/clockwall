@@ -12,6 +12,14 @@ let contacts = [
     name: "Akash Manoj",
     timeZone: "Asia/Kolkata",
   },
+  {
+    name: "Prince Elias George",
+    timeZone: "America/Los_Angeles"
+  },
+  {
+    name: "Lakshmipriya M",
+    timeZone: "Europe/Copenhagen"
+  }
 ];
 const contactsListElm = document.getElementById("contacts-list");
 
@@ -46,7 +54,7 @@ function getContactTimeCardHtml(contact) {
   );
 
   if(contact.self) {
-    containerElm.classList.add('shadow-green-200', 'dark:shadow-green-900', 'bg-green-300', 'dark:bg-green-700');
+    containerElm.classList.add('shadow-green-200', 'dark:shadow-blue-900', 'bg-green-300', 'dark:bg-blue-900');
     nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-100')
     timeElm.classList.add("text-gray-700", "dark:text-gray-200");
   } else {
@@ -62,7 +70,7 @@ function getContactTimeCardHtml(contact) {
   return { element: containerElm, timeElement: timeElm, imageElement: imageElm };
 }
 
-contacts.unshift({ name: 'Me', timeZone: 'Asia/Kolkata', self: true}).element;
+contacts.unshift({ name: 'Me', timeZone: 'Asia/Kolkata', self: true });
 
 for (const contact of contacts) {
   const { element, timeElement, imageElement } = getContactTimeCardHtml(contact);
