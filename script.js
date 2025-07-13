@@ -23,6 +23,9 @@ let contacts = [
 ];
 const contactsListElm = document.getElementById("contacts-list");
 
+let timeOffset = 0;
+let selectedContact = null;
+
 function getContactTimeCardHtml(contact) {
   const formatedPersonName = contact.name.toLowerCase().replaceAll(" ", "-");
   const imageContainerElement = document.createElement("div");
@@ -50,7 +53,7 @@ function getContactTimeCardHtml(contact) {
   const containerElm = document.createElement("div");
   containerElm.setAttribute(
     "class",
-    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto"
+    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto cursor-pointer"
   );
 
   if(contact.self) {
@@ -66,6 +69,14 @@ function getContactTimeCardHtml(contact) {
 
   containerElm.appendChild(imageContainerElement);
   containerElm.appendChild(nameAndDetailsContainerElm);
+
+  containerElm.addEventListener('click', () => {
+    selectedContact = contact;
+    const { hour, minute } = getTimeforTimezone(contact.timeZone);
+    const timeInput = document.getElementById('edit-time-input');
+    timeInput.value = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    document.getElementById('edit-time-overlay').style.display = 'flex';
+  });
 
   return { element: containerElm, timeElement: timeElm, imageElement: imageElm };
 }
@@ -89,17 +100,20 @@ function updateContactCards() {
 
 function updateContactCard(contact) {
   const { month, day, hour, minute, dayPeriod } = getTimeforTimezone(contact.timeZone);
-  contact.timeElement.innerText = `${month} ${day}, ${hour}:${minute} ${dayPeriod}`;
-  const isNight = (dayPeriod === 'PM' && parseInt(hour) >= 7) || (dayPeriod === 'AM' && parseInt(hour) < 7);
-  const dayNightImage = isNight ? 'img/moon.png' : 'img/sun.png'
+  const displayHour = (hour % 12) || 12;
+  const displayMinute = minute.toString().padStart(2, '0');
+  contact.timeElement.innerText = `${month} ${day}, ${displayHour}:${displayMinute} ${dayPeriod}`;
+  const isNight = (dayPeriod === 'PM' && hour >= 7) || (dayPeriod === 'AM' && hour < 7);
+  const dayNightImage = isNight ? 'img/moon.png' : 'img/sun.png';
   contact.imageElement.setAttribute('src', dayNightImage); 
 }
 
 function getTimeforTimezone(timeZone) {
-  const now = new Date();
+  const now = new Date(new Date().getTime() + timeOffset);
   const dateTimeFormat = new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
+    hour12: false,
     timeZone,
   });
 
@@ -111,12 +125,12 @@ function getTimeforTimezone(timeZone) {
       case "month":
       case "day":
       case "hour":
-      case "minute":
-      case "dayPeriod": {
+      case "minute": {
         dateFormatted[type] = value;
       }
     }
   }
+  dateFormatted.dayPeriod = dateFormatted.hour >= 12 ? 'PM' : 'AM';
 
   return dateFormatted;
 }
@@ -169,4 +183,38 @@ addNewPersonForm.addEventListener("submit", (e) => {
     addNewPersonOverlay.style.display = "none";
     e.target.name.value = "";
     e.target.timezone.value = "";
+});
+
+const editTimeOverlay = document.getElementById('edit-time-overlay');
+const editTimeForm = document.getElementById('edit-time-form');
+const cancelEditTimeButton = document.getElementById('cancel-edit-time-button');
+
+editTimeForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const newTime = document.getElementById('edit-time-input').value;
+  const [newHours, newMinutes] = newTime.split(':');
+
+  const now = new Date(new Date().getTime() + timeOffset);
+  const currentDateTime = new Date(
+    now.toLocaleString('en-US', { timeZone: selectedContact.timeZone, hour12: false })
+  );
+
+  const newDateTime = new Date(currentDateTime);
+  newDateTime.setHours(newHours);
+  newDateTime.setMinutes(newMinutes);
+
+  timeOffset += newDateTime.getTime() - currentDateTime.getTime();
+
+  updateContactCards();
+  editTimeOverlay.style.display = 'none';
+});
+
+cancelEditTimeButton.addEventListener('click', () => {
+  editTimeOverlay.style.display = 'none';
+});
+
+editTimeOverlay.addEventListener('click', (e) => {
+  if (e.target === editTimeOverlay) {
+    editTimeOverlay.style.display = 'none';
+  }
 });
