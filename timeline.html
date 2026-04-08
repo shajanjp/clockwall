@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>clockwall | timeline</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            display: ["Georgia", "Times New Roman", "serif"],
+                            body: [
+                                "Manrope",
+                                "ui-sans-serif",
+                                "system-ui",
+                                "sans-serif",
+                            ],
+                        },
+                        colors: {
+                            ink: "#151515",
+                            mist: "#F5F1EB",
+                            clay: "#E8DED3",
+                            pine: "#0F3B2E",
+                            sand: "#D9CBB8",
+                            brass: "#B08A57",
+                            mint: "#1AAE7E",
+                        },
+                        boxShadow: {
+                            soft: "0 10px 30px rgba(15, 59, 46, 0.10)",
+                        },
+                    },
+                },
+            };
+        </script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body class="bg-mist text-ink font-body min-h-screen transition-colors duration-300 dark:bg-ink dark:text-mist">
+      <div class="relative overflow-hidden">
+        <header class="relative z-50 mx-auto flex w-full max-w-6xl items-center justify-between px-6 pt-10">
+          <div>
+            <h1 class="font-display text-4xl text-ink sm:text-5xl dark:text-mist">Clockwall</h1>
+            <p class="mt-1.5 text-[10px] uppercase tracking-[0.4em] text-pine/50 dark:text-brass/60">Timeline</p>
+          </div>
+          <div class="flex items-center gap-4">            <a
+              href="index.html"
+              class="rounded-full border border-clay p-2.5 text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:text-mist"
+              aria-label="Clock view"
+            >
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </a>
+            <button
+              id="themeToggleBtn"
+              class="rounded-full border border-clay p-2.5 text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:text-mist"
+              aria-label="Toggle theme"
+            >
+              <span id="themeIcon"></span>
+            </button>
+          </div>
+        </header>
+
+        <div class="relative z-10 mx-auto mt-8 flex w-full max-w-6xl items-center justify-end gap-3 px-6">
+          <button
+            id="resetSliderBtn"
+            class="hidden h-10 items-center gap-2 rounded-full border border-clay px-5 text-sm font-semibold text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:border-brass dark:hover:text-brass"
+            type="button"
+          >
+            Reset
+          </button>
+          <div class="rounded-full bg-white/70 px-4 py-2 text-xs text-ink/70 shadow-soft backdrop-blur sm:inline-block hidden dark:bg-pine/20 dark:text-mist/70 dark:border dark:border-pine/30">
+            Offset: <span id="offsetLabel" class="font-semibold text-ink dark:text-mist"></span>
+          </div>
+        </div>
+
+            <main
+                class="relative z-10 mx-auto w-full max-w-6xl px-6 pb-20 pt-12"
+            >
+                <div
+                    class="rounded-2xl bg-white/80 p-6 shadow-soft backdrop-blur dark:bg-pine/10 dark:border dark:border-pine/30"
+                >
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-4"
+                    >
+                        <div>
+                            <p
+                                class="text-xs uppercase tracking-[0.2em] text-ink/50 dark:text-mist/40"
+                            >
+                                Team Availability
+                            </p>
+                            <p
+                                id="currentTimeLabel"
+                                class="mt-1 text-sm text-ink/60 dark:text-mist/60"
+                            ></p>
+                        </div>
+                        <div class="text-xs text-ink/50 dark:text-mist/40">
+                            Working hours shown as 09:00-17:00 in each local
+                            zone.
+                        </div>
+                    </div>
+
+                    <div id="timelineFrame" class="relative mt-8">
+                        <div
+                            id="timelineMarker"
+                            class="absolute top-0 h-full w-px bg-brass z-10 pointer-events-none"
+                        ></div>
+                        <div
+                            id="gridLines"
+                            class="absolute inset-0 z-0 pointer-events-none ml-[144px]"
+                        ></div>
+                        <div
+                            class="relative z-10 grid grid-cols-[120px_1fr] items-center gap-x-6 gap-y-6"
+                        >
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-xs uppercase tracking-[0.2em] text-ink/40 dark:text-mist/30"
+                                    >Person</span
+                                >
+                            </div>
+                            <div class="flex items-center justify-between">
+                              <span class="text-xs uppercase tracking-[0.2em] text-ink/40 dark:text-mist/30">Local Timeline</span>
+                            </div>
+                            <div
+                                class="col-span-2 h-px bg-clay/60 dark:bg-pine/30"
+                            ></div>
+                            <div id="rows" class="col-span-2 space-y-6"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="mt-8 flex flex-wrap items-center gap-4 text-xs text-ink/50 dark:text-mist/40"
+                    >
+                        <div class="flex items-center gap-2">
+                            <span class="h-3 w-3 rounded-full bg-mint"></span>
+                            Working hours
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="h-3 w-3 rounded-full bg-clay dark:bg-pine/40"
+                            ></span>
+                            Off hours
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="h-3 w-3 rounded-full bg-brass"></span>
+                            Current time
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <template id="rowTemplate">
+            <div class="grid grid-cols-[120px_1fr] items-center gap-x-6">
+                <div>
+                    <p
+                        class="text-sm font-semibold text-ink dark:text-mist"
+                    ></p>
+                    <p class="text-xs text-ink/50 dark:text-mist/40"></p>
+                </div>
+                <div class="relative h-12">
+                    <div
+                        class="absolute inset-0 rounded-full bg-clay/70 dark:bg-pine/20"
+                    ></div>
+                    <div
+                        class="working absolute top-0 h-full rounded-full bg-mint/90"
+                    ></div>
+                    <div
+                        class="working-secondary absolute top-0 h-full rounded-full bg-mint/90"
+                    ></div>
+                    <div
+                        class="labels absolute inset-0 flex items-center justify-between px-3 text-[10px] text-ink/50 dark:text-mist/40"
+                    ></div>
+                    <div
+                        class="time-label absolute -top-6 right-0 text-[11px] text-ink/60 dark:text-mist/60"
+                    ></div>
+                </div>
+            </div>
+        </template>
+
+        <script>
+            const storageKey = "clockwall.clocks";
+            const offsetKey = "clockwall.offsetMinutes";
+            const rowsContainer = document.getElementById("rows");
+            const rowTemplate = document.getElementById("rowTemplate");
+            const timelineMarker = document.getElementById("timelineMarker");
+            const timelineFrame = document.getElementById("timelineFrame");
+            const currentTimeLabel =
+                document.getElementById("currentTimeLabel");
+            const offsetLabel = document.getElementById("offsetLabel");
+            const timeSlider = document.getElementById("timeSlider");
+            const sliderTimeLabel = document.getElementById("sliderTimeLabel");
+            const resetSliderBtn = document.getElementById("resetSliderBtn");
+            const themeToggleBtn = document.getElementById("themeToggleBtn");
+            const themeIcon = document.getElementById("themeIcon");
+            const themeKey = "clockwall.theme";
+
+            function applyTheme() {
+                const theme = localStorage.getItem(themeKey) || "light";
+                if (theme === "dark") {
+                    document.documentElement.classList.add("dark");
+                    themeIcon.innerHTML = '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+                } else {
+                    document.documentElement.classList.remove("dark");
+                    themeIcon.innerHTML = '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                }
+            }
+
+            function toggleTheme() {
+                const current = localStorage.getItem(themeKey) || "light";
+                const next = current === "light" ? "dark" : "light";
+                localStorage.setItem(themeKey, next);
+                applyTheme();
+            }
+
+            themeToggleBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                toggleTheme();
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    // No modals here currently but good for future
+                }
+            });
+
+            function loadClocks() {
+                const stored = localStorage.getItem(storageKey);
+                if (!stored) return [];
+                try {
+                    const parsed = JSON.parse(stored);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            function loadOffset() {
+                const stored = localStorage.getItem(offsetKey);
+                return stored ? Number(stored) || 0 : 0;
+            }
+
+            function saveOffset(offsetMinutes) {
+              localStorage.setItem(offsetKey, String(offsetMinutes));
+              resetSliderBtn.classList.toggle("hidden", offsetMinutes === 0);
+            }
+            function formatOffset(offsetMinutes) {
+                if (offsetMinutes === 0) return "On current time";
+                const abs = Math.abs(offsetMinutes);
+                const days = Math.floor(abs / 1440);
+                const hours = Math.floor((abs % 1440) / 60);
+                const minutes = abs % 60;
+                const sign = offsetMinutes > 0 ? "+" : "-";
+                const direction = offsetMinutes > 0 ? "ahead" : "behind";
+                const pieces = [];
+                if (days) pieces.push(`${days}d`);
+                if (hours) pieces.push(`${hours}h`);
+                if (minutes) pieces.push(`${minutes}m`);
+                return `${sign}${pieces.join(" ")} (${direction})`;
+            }
+
+            function getZoneParts(date, timezone) {
+                const formatter = new Intl.DateTimeFormat("en-US", {
+                    timeZone: timezone,
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                });
+                const parts = formatter.formatToParts(date);
+                const year = Number(
+                    parts.find((part) => part.type === "year")?.value ?? 0,
+                );
+                const month = Number(
+                    parts.find((part) => part.type === "month")?.value ?? 1,
+                );
+                const day = Number(
+                    parts.find((part) => part.type === "day")?.value ?? 1,
+                );
+                const rawHour = Number(
+                    parts.find((part) => part.type === "hour")?.value ?? 0,
+                );
+                const hour = rawHour === 24 ? 0 : rawHour;
+                const minute = Number(
+                    parts.find((part) => part.type === "minute")?.value ?? 0,
+                );
+                return { year, month, day, hour, minute };
+            }
+
+            function formatZoneTime(date, timezone) {
+                return new Intl.DateTimeFormat("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                    timeZone: timezone,
+                }).format(date);
+            }
+
+            function formatZoneDate(date, timezone) {
+                return new Intl.DateTimeFormat("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    timeZone: timezone,
+                }).format(date);
+            }
+
+            function zonedTimeToUtc(
+                { year, month, day, hour, minute },
+                timezone,
+            ) {
+                const initial = Date.UTC(year, month - 1, day, hour, minute);
+                const initialParts = getZoneParts(new Date(initial), timezone);
+                const targetMinutes = hour * 60 + minute;
+                const initialMinutes =
+                    initialParts.hour * 60 + initialParts.minute;
+                const dayDelta = Math.round(
+                    (Date.UTC(year, month - 1, day) -
+                        Date.UTC(
+                            initialParts.year,
+                            initialParts.month - 1,
+                            initialParts.day,
+                        )) /
+                        86400000,
+                );
+                const minuteDelta =
+                    targetMinutes - initialMinutes + dayDelta * 1440;
+                return initial + minuteDelta * 60000;
+            }
+
+            function getPrimaryDayStartUtc(adjustedNow, primaryZone) {
+                const primaryParts = getZoneParts(adjustedNow, primaryZone);
+                return zonedTimeToUtc(
+                    {
+                        year: primaryParts.year,
+                        month: primaryParts.month,
+                        day: primaryParts.day,
+                        hour: 0,
+                        minute: 0,
+                    },
+                    primaryZone,
+                );
+            }
+
+            function normalizeMinutes(value) {
+                return ((value % 1440) + 1440) % 1440;
+            }
+
+            function renderLabels(labelsContainer, startUtc, timezone) {
+                labelsContainer.innerHTML = "";
+                [0, 6, 12, 18, 24].forEach((hourOffset, index) => {
+                    const labelDate = new Date(
+                        startUtc + hourOffset * 60 * 60000,
+                    );
+                    const labelText = new Intl.DateTimeFormat("en-US", {
+                        hour: "numeric",
+                        hour12: true,
+                        timeZone: timezone,
+                    }).format(labelDate);
+                    const span = document.createElement("span");
+                    span.textContent = labelText.replace(" ", "");
+                    if (index === 0) span.classList.add("-ml-1");
+                    labelsContainer.appendChild(span);
+                });
+            }
+
+            function formatMinutes(minutes) {
+                const safe = ((minutes % 1440) + 1440) % 1440;
+                const hour = Math.floor(safe / 60);
+                const minute = safe % 60;
+                const period = hour >= 12 ? "pm" : "am";
+                const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+                return `${displayHour}:${String(minute).padStart(2, "0")} ${period}`;
+            }
+
+            function setTimelineMarker(currentMinutes) {
+                const percent = Math.min(Math.max(currentMinutes / 1440, 0), 1);
+                const grid = timelineFrame.querySelector(".grid");
+                const labelCell = grid?.querySelector("div");
+                if (!labelCell || !grid) return;
+                const labelWidth = labelCell.getBoundingClientRect().width;
+                const gap = 24;
+                const frameRect = timelineFrame.getBoundingClientRect();
+                const leftOffset = labelWidth + gap;
+                const timelineWidth = frameRect.width - leftOffset;
+                timelineMarker.style.left = `${leftOffset + timelineWidth * percent}px`;
+            }
+
+            function renderGridLines() {
+                const gridLines = document.getElementById("gridLines");
+                gridLines.innerHTML = "";
+                for (let i = 1; i < 24; i++) {
+                    const line = document.createElement("div");
+                    line.className = "absolute top-0 bottom-0 w-px bg-clay/30 dark:bg-pine/20";
+                    line.style.left = `${(i / 24) * 100}%`;
+                    gridLines.appendChild(line);
+                }
+            }
+
+            function handleTimelineClick(event, container) {
+                const rect = container.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const percent = Math.min(Math.max(x / rect.width, 0), 1);
+                const targetMinutes = Math.round((percent * 1440) / 15) * 15; // Snap to 15m
+
+                const clocks = loadClocks();
+                if (!clocks.length) return;
+                const primaryZone = clocks[0].timezone;
+                const now = new Date();
+                const { hour, minute } = getZoneParts(now, primaryZone);
+                const baseMinutes = hour * 60 + minute;
+                const delta = targetMinutes - baseMinutes;
+
+                saveOffset(delta);
+                updateTimeline();
+            }
+
+            function renderRows(clocks, adjustedNow, primaryZone) {
+                rowsContainer.innerHTML = "";
+                const primaryStartUtc = getPrimaryDayStartUtc(
+                    adjustedNow,
+                    primaryZone,
+                );
+                const primaryParts = getZoneParts(adjustedNow, primaryZone);
+                const primaryMinutes =
+                    primaryParts.hour * 60 + primaryParts.minute;
+                const markerPercent = (primaryMinutes / 1440) * 100;
+
+                clocks.forEach((clock) => {
+                    const clone = rowTemplate.content.cloneNode(true);
+                    const row = clone.querySelector(".grid");
+                    const label = row.querySelector("p");
+                    const subLabel = row.querySelectorAll("p")[1];
+                    const barContainer = row.querySelector(".relative");
+                    const working = row.querySelector(".working");
+                    const workingSecondary =
+                        row.querySelector(".working-secondary");
+                    const labels = row.querySelector(".labels");
+                    const timeLabel = row.querySelector(".time-label");
+
+                    label.textContent = clock.label;
+                    subLabel.textContent = clock.timezone.replace(/_/g, " ");
+
+                    barContainer.classList.add(
+                        "cursor-crosshair",
+                        "hover:opacity-90",
+                        "transition-opacity",
+                    );
+                    barContainer.addEventListener("click", (e) =>
+                        handleTimelineClick(e, barContainer),
+                    );
+
+                    const zoneParts = getZoneParts(adjustedNow, clock.timezone);
+                    const zoneStartParts = getZoneParts(
+                        new Date(primaryStartUtc),
+                        clock.timezone,
+                    );
+                    const workStartUtc = zonedTimeToUtc(
+                        {
+                            year: zoneStartParts.year,
+                            month: zoneStartParts.month,
+                            day: zoneStartParts.day,
+                            hour: 9,
+                            minute: 0,
+                        },
+                        clock.timezone,
+                    );
+                    const workEndUtc = zonedTimeToUtc(
+                        {
+                            year: zoneStartParts.year,
+                            month: zoneStartParts.month,
+                            day: zoneStartParts.day,
+                            hour: 17,
+                            minute: 0,
+                        },
+                        clock.timezone,
+                    );
+                    const startMinutes = normalizeMinutes(
+                        (workStartUtc - primaryStartUtc) / 60000,
+                    );
+                    const endMinutes = normalizeMinutes(
+                        (workEndUtc - primaryStartUtc) / 60000,
+                    );
+                    const startPercent = (startMinutes / 1440) * 100;
+                    const endPercent = (endMinutes / 1440) * 100;
+                    const wraps = endMinutes < startMinutes;
+
+                    working.style.left = `${startPercent}%`;
+                    working.style.width = `${wraps ? 100 - startPercent : endPercent - startPercent}%`;
+                    workingSecondary.style.display = wraps ? "block" : "none";
+                    if (wraps) {
+                        workingSecondary.style.left = "0%";
+                        workingSecondary.style.width = `${endPercent}%`;
+                    } else {
+                        workingSecondary.style.width = "0%";
+                    }
+
+                    renderLabels(labels, primaryStartUtc, clock.timezone);
+
+                    timeLabel.textContent = `${formatZoneTime(adjustedNow, clock.timezone)} • ${formatZoneDate(adjustedNow, clock.timezone)}`;
+
+                    rowsContainer.appendChild(row);
+                });
+            }
+
+            function updateTimeline() {
+                const offsetMinutes = loadOffset();
+                const adjustedNow = new Date(
+                    Date.now() + offsetMinutes * 60000,
+                );
+                const clocks = loadClocks();
+                offsetLabel.textContent = formatOffset(offsetMinutes);
+
+                if (!clocks.length) {
+                    rowsContainer.innerHTML =
+                        '<p class="text-sm text-ink/60">No clocks saved yet. Add clocks in the card view.</p>';
+                    currentTimeLabel.textContent = "";
+                    timelineMarker.style.display = "none";
+                    return;
+                }
+
+                const primaryZone = clocks[0].timezone;
+                currentTimeLabel.textContent = `Current time: ${formatZoneTime(adjustedNow, primaryZone)} (${primaryZone.replace(/_/g, " ")})`;
+
+                const primaryParts = getZoneParts(adjustedNow, primaryZone);
+                setTimelineMarker(primaryParts.hour * 60 + primaryParts.minute);
+                timelineMarker.style.display = "block";
+
+                renderRows(clocks, adjustedNow, primaryZone);
+            }
+
+            resetSliderBtn.addEventListener("click", () => {
+                saveOffset(0);
+                updateTimeline();
+            });
+
+            updateTimeline();
+            renderGridLines();
+            applyTheme();
+            saveOffset(loadOffset());
+            window.addEventListener("resize", () => {                updateTimeline();
+                renderGridLines();
+            });
+            setInterval(() => {
+                updateTimeline();
+            }, 60000);
+        </script>
+    </body>
+</html>

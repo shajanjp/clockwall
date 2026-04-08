@@ -1,49 +1,744 @@
 <!doctype html>
-<html>
-<head>
-  <title>Clockwall</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="dist/style.css" rel="stylesheet">
-</head>
-<body class="bg-slate-100 dark:bg-gray-800">
-  <div class="flex justify-center items-center">
-    <div class="mt-1 p-10 flex flex-row flex-wrap gap-6 justify-center" id="contacts-list"></div>
-  </div>
-  <button class="absolute bottom-10 right-10 rounded-2xl shadow-lg w-20 h-20 flex bg-white dark:bg-gray-600 justify-center items-center cursor-pointer" id="add-new-person">
-    <div>
-      <img title="Add a person" class="w-6 h-6 opacity-80" src="img/plus.png" alt="">
-    </div>
-  </button>
-  <div id="add-new-person-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style="display: none;">
-    <div id="add-new-person-window" class="w-auto p-6 bg-white dark:bg-gray-700 shadow-lg rounded-2xl">
-      <form id="add-new-person-form" class="flex flex-col gap-4">
-        <h2 class="text-lg font-bold dark:text-white">Add new person</h2>
-        <input type="text" name="name" id="new-person-name" placeholder="Name" class="p-2 border border-slate-200 rounded-lg dark:bg-gray-600 dark:text-white dark:border-gray-500">
-        <select name="timezone" id="new-person-timezone" class="p-2 border border-slate-200 rounded-lg dark:bg-gray-600 dark:text-white dark:border-gray-500"></select>
-        <div class="flex flex-col gap-2">
-            <button type="button" id="cancel-modal-button" class="p-2 bg-gray-300 dark:bg-gray-500 text-black dark:text-white rounded-lg">Cancel</button>
-            <button type="submit" class="p-2 bg-blue-500 text-white rounded-lg">Add</button>
-        </div>
-      </form>
-    </div>
-  </div>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>clockwall</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            display: ["Georgia", "Times New Roman", "serif"],
+                            body: [
+                                "Manrope",
+                                "ui-sans-serif",
+                                "system-ui",
+                                "sans-serif",
+                            ],
+                        },
+                        colors: {
+                            ink: "#151515",
+                            mist: "#F5F1EB",
+                            clay: "#E8DED3",
+                            pine: "#0F3B2E",
+                            sand: "#D9CBB8",
+                            brass: "#B08A57",
+                        },
+                        boxShadow: {
+                            soft: "0 10px 30px rgba(15, 59, 46, 0.10)",
+                        },
+                    },
+                },
+            };
+        </script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body class="bg-mist text-ink font-body min-h-screen transition-colors duration-300 dark:bg-ink dark:text-mist">
+      <div class="relative overflow-hidden">
+        <header class="relative z-50 mx-auto flex w-full max-w-6xl items-center justify-between px-6 pt-10">
+          <div>
+            <h1 class="font-display text-4xl text-ink sm:text-5xl dark:text-mist">Clockwall</h1>
+            <p class="mt-1.5 text-[10px] uppercase tracking-[0.4em] text-pine/50 dark:text-brass/60">World Time Overview</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <a
+              href="timeline.html"
+              class="rounded-full border border-clay p-2.5 text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:text-mist"
+              aria-label="Timeline view"
+            >
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <path d="M8 14h.01"></path>
+                <path d="M12 14h.01"></path>
+                <path d="M16 14h.01"></path>
+                <path d="M8 18h.01"></path>
+                <path d="M12 18h.01"></path>
+                <path d="M16 18h.01"></path>
+              </svg>
+            </a>
+            <button
+              id="themeToggleBtn"
+              class="rounded-full border border-clay p-2.5 text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:text-mist"
+              aria-label="Toggle theme"
+            >
+              <span id="themeIcon"></span>
+            </button>
+          </div>
+        </header>
 
-  <div id="edit-time-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style="display: none;">
-    <div id="edit-time-window" class="w-auto p-6 bg-white dark:bg-gray-700 shadow-lg rounded-2xl">
-      <form id="edit-time-form" class="flex flex-col gap-4">
-        <h2 class="text-lg font-bold dark:text-white">Edit Time</h2>
-        <input type="time" name="time" id="edit-time-input" class="p-2 border border-slate-200 rounded-lg dark:bg-gray-600 dark:text-white dark:border-gray-500">
-        <div class="flex gap-2 justify-end">
-          <button type="button" id="cancel-edit-time-button" class="p-2 bg-gray-300 dark:bg-gray-500 text-black dark:text-white rounded-lg">Cancel</button>
-          <button type="submit" class="p-2 bg-blue-500 text-white rounded-lg">Save</button>
+        <div class="relative z-10 mx-auto mt-8 flex w-full max-w-6xl items-center justify-end gap-3 px-6">
+          <button
+            id="resetOffsetBtn"
+            class="hidden h-10 items-center gap-2 rounded-full border border-clay px-5 text-sm font-semibold text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:border-brass dark:hover:text-brass"
+            type="button"
+          >
+            Reset
+          </button>
+          <button
+            id="addClockBtn"
+            class="inline-flex h-10 items-center gap-2 rounded-full bg-pine px-5 text-sm font-semibold text-mist shadow-soft transition hover:bg-pine/90 dark:bg-brass dark:text-ink dark:hover:bg-brass/90"
+            type="button"
+          >
+            Add clock
+          </button>
         </div>
-      </form>
-    </div>
-  </div>
-  
-  
-</div>
-<script src="script.js"></script>
-</body>
+
+            <main
+                class="relative z-10 mx-auto w-full max-w-6xl px-6 pb-20 pt-12"
+            >
+                <section class="flex flex-col gap-8">
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-4"
+                    ></div>
+
+                    <div
+                        id="clockGrid"
+                        class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    ></div>
+                </section>
+            </main>
+        </div>
+
+        <div
+            id="clockModal"
+            class="fixed inset-0 z-20 hidden items-center justify-center bg-ink/40 px-4 backdrop-blur flex dark:bg-ink/80"
+            aria-hidden="true"
+        >
+            <div
+                class="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft dark:bg-ink dark:border dark:border-pine/30"
+            >
+                <div class="flex items-center justify-between">
+                    <h2 class="font-display text-2xl text-ink dark:text-mist">
+                        Add a clock
+                    </h2>
+                    <button
+                        id="closeModalBtn"
+                        class="text-ink/60 hover:text-ink dark:text-mist/60 dark:hover:text-mist"
+                        type="button"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <form id="clockForm" class="mt-5 space-y-4">
+                    <label class="block text-sm text-ink/70 dark:text-mist/70">
+                        Label
+                        <input
+                            id="labelInput"
+                            type="text"
+                            placeholder="London Office"
+                            required
+                            class="mt-2 w-full rounded-xl border border-clay bg-mist/50 px-4 py-2 text-sm focus:border-pine focus:outline-none dark:bg-pine/10 dark:border-pine/30 dark:focus:border-brass dark:text-mist"
+                        />
+                    </label>
+                    <label class="block text-sm text-ink/70 dark:text-mist/70">
+                        Time Zone
+                        <select
+                            id="timezoneInput"
+                            required
+                            class="mt-2 w-full rounded-xl border border-clay bg-mist/50 px-4 py-2 text-sm focus:border-pine focus:outline-none dark:bg-pine/10 dark:border-pine/30 dark:focus:border-brass dark:text-mist"
+                        ></select>
+                    </label>
+                    <div class="flex items-center justify-between pt-2">
+                        <button
+                            type="button"
+                            id="cancelModalBtn"
+                            class="rounded-full border border-clay px-5 py-2 text-sm font-semibold text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/50 dark:hover:text-mist"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="rounded-full bg-pine px-5 py-2 text-sm font-semibold text-mist shadow-soft transition hover:bg-pine/90 dark:bg-brass dark:text-ink dark:hover:bg-brass/90"
+                        >
+                            Add Clock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div
+            id="adjustModal"
+            class="fixed inset-0 z-20 hidden items-center justify-center bg-ink/40 px-4 backdrop-blur flex dark:bg-ink/80"
+            aria-hidden="true"
+        >
+            <div
+                class="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft dark:bg-ink dark:border dark:border-pine/30"
+            >
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p
+                            class="text-xs uppercase tracking-[0.2em] text-ink/50 dark:text-mist/50"
+                        >
+                            Adjust clock
+                        </p>
+                        <h2
+                            id="adjustTitle"
+                            class="mt-2 font-display text-2xl text-ink dark:text-mist"
+                        ></h2>
+                        <p
+                            id="adjustZone"
+                            class="mt-1 text-sm text-ink/60 dark:text-mist/60"
+                        ></p>
+                    </div>
+                    <button
+                        id="closeAdjustBtn"
+                        class="text-ink/60 hover:text-ink dark:text-mist/60 dark:hover:text-mist"
+                        type="button"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <form id="adjustForm" class="mt-5 space-y-4">
+                    <label class="block text-sm text-ink/70 dark:text-mist/70">
+                      Label
+                      <input
+                        id="adjustLabelInput"
+                        type="text"
+                        required
+                        class="mt-2 w-full rounded-xl border border-clay bg-mist/50 px-4 py-2 text-sm focus:border-pine focus:outline-none dark:bg-pine/10 dark:border-pine/30 dark:focus:border-brass dark:text-mist"
+                      />
+                    </label>
+                    <label class="block text-sm text-ink/70 dark:text-mist/70">
+                      Time Zone
+                      <select
+                        id="adjustTimezoneInput"
+                        required
+                        class="mt-2 w-full rounded-xl border border-clay bg-mist/50 px-4 py-2 text-sm focus:border-pine focus:outline-none dark:bg-pine/10 dark:border-pine/30 dark:focus:border-brass dark:text-mist"
+                      ></select>
+                    </label>
+                    <label class="block text-sm text-ink/70 dark:text-mist/70">
+                      Date (local to this card)                        <input
+                            id="adjustDateInput"
+                            type="date"
+                            required
+                            class="mt-2 w-full rounded-xl border border-clay bg-mist/50 px-4 py-2 text-sm focus:border-pine focus:outline-none dark:bg-pine/10 dark:border-pine/30 dark:focus:border-brass dark:text-mist"
+                        />
+                    </label>
+                    <label class="block text-sm text-ink/70 dark:text-mist/70">
+                        Set time (local to this card)
+                        <input
+                            id="adjustTimeInput"
+                            type="time"
+                            required
+                            class="mt-2 w-full rounded-xl border border-clay bg-mist/50 px-4 py-2 text-sm focus:border-pine focus:outline-none dark:bg-pine/10 dark:border-pine/30 dark:focus:border-brass dark:text-mist"
+                        />
+                    </label>
+                    <p class="text-xs text-ink/50 dark:text-mist/50">
+                        Changing this time shifts every clock so you can compare
+                        schedules instantly.
+                    </p>
+                    <div class="flex items-center justify-between pt-2">
+                        <button
+                            type="button"
+                            id="cancelAdjustBtn"
+                            class="rounded-full border border-clay px-4 py-2 text-sm text-ink/60 hover:text-ink dark:border-pine/30 dark:text-mist/50 dark:hover:text-mist"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="rounded-full bg-pine px-5 py-2 text-sm font-semibold text-mist shadow-soft dark:bg-brass dark:text-ink dark:hover:bg-brass/90"
+                        >
+                            Apply shift
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <template id="clockCardTemplate">
+            <article
+                class="group relative overflow-hidden rounded-xl border border-clay bg-white/80 p-5 shadow-soft backdrop-blur cursor-pointer dark:bg-pine/20 dark:border-pine/30 dark:hover:bg-pine/30 transition-colors"
+            >
+                <div class="flex items-start justify-between">
+                    <div class="min-w-0 flex-1">
+                        <h3
+                            class="truncate font-display text-xl text-ink dark:text-mist"
+                        >
+                            <span class="label"></span>
+                        </h3>
+                        <p
+                            class="truncate text-[10px] uppercase tracking-wider text-ink/40 dark:text-mist/40"
+                        ></p>
+                    </div>
+                    <button
+                        class="delete-btn ml-2 shrink-0 rounded-full border border-clay p-1.5 text-xs text-ink/60 transition hover:border-brass hover:text-brass dark:border-pine/30 dark:text-mist/60 dark:hover:text-brass"
+                        type="button"
+                        aria-label="Remove clock"
+                    >
+                        <svg
+                            class="h-3.5 w-3.5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M3 6h18" />
+                            <path d="M8 6V4h8v2" />
+                            <path d="M9 10v8" />
+                            <path d="M15 10v8" />
+                            <path d="M5 6l1 14h12l1-14" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="mt-3">
+                    <span
+                        class="time block text-3xl font-semibold tracking-tight text-ink dark:text-mist"
+                    ></span>
+                    <p
+                        class="date mt-1 text-xs text-ink/50 dark:text-mist/50"
+                    ></p>
+                </div>
+                <div
+                    class="mt-3 flex items-center gap-2 border-t border-clay/30 pt-3 text-[10px] text-ink/40 uppercase tracking-widest dark:text-mist/30 dark:border-pine/30"
+                >
+                    <div
+                        class="day-icon inline-flex h-3.5 w-3.5 items-center justify-center"
+                    ></div>
+                    <span class="offset truncate"></span>
+                </div>
+            </article>
+        </template>
+
+        <script>
+            const timezoneSelect = document.getElementById("timezoneInput");
+            const addClockBtn = document.getElementById("addClockBtn");
+            const resetOffsetBtn = document.getElementById("resetOffsetBtn");
+            const modal = document.getElementById("clockModal");
+            const adjustModal = document.getElementById("adjustModal");
+            const closeModalBtn = document.getElementById("closeModalBtn");
+            const cancelModalBtn = document.getElementById("cancelModalBtn");
+            const closeAdjustBtn = document.getElementById("closeAdjustBtn");
+            const cancelAdjustBtn = document.getElementById("cancelAdjustBtn");
+            const form = document.getElementById("clockForm");
+            const labelInput = document.getElementById("labelInput");
+            const clockGrid = document.getElementById("clockGrid");
+            const template = document.getElementById("clockCardTemplate");
+            const adjustForm = document.getElementById("adjustForm");
+            const adjustTitle = document.getElementById("adjustTitle");
+            const adjustZone = document.getElementById("adjustZone");
+            const adjustLabelInput = document.getElementById("adjustLabelInput");
+            const adjustTimezoneInput = document.getElementById("adjustTimezoneInput");
+            const adjustDateInput = document.getElementById("adjustDateInput");
+            const adjustTimeInput = document.getElementById("adjustTimeInput");
+            const themeToggleBtn = document.getElementById("themeToggleBtn");
+            const themeIcon = document.getElementById("themeIcon");
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    closeModal();
+                    closeAdjustModal();
+                }
+            });
+
+            const storageKey = "clockwall.clocks";
+            const offsetKey = "clockwall.offsetMinutes";
+            const themeKey = "clockwall.theme";
+
+            function applyTheme() {
+              const theme = localStorage.getItem(themeKey) || "light";
+              if (theme === "dark") {
+                document.documentElement.classList.add("dark");
+                themeIcon.innerHTML = '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+              } else {
+                document.documentElement.classList.remove("dark");
+                themeIcon.innerHTML = '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+              }
+            }
+            function toggleTheme() {
+                const current = localStorage.getItem(themeKey) || "light";
+                const next = current === "light" ? "dark" : "light";
+                localStorage.setItem(themeKey, next);
+                applyTheme();
+            }
+
+            themeToggleBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                toggleTheme();
+            });
+
+            const defaultClocks = [
+                {
+                    label: "My Time",
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    locked: true,
+                },
+            ];
+
+            const timeZones = Intl.supportedValuesOf
+                ? Intl.supportedValuesOf("timeZone")
+                : [
+                      "UTC",
+                      "America/New_York",
+                      "America/Chicago",
+                      "America/Denver",
+                      "America/Los_Angeles",
+                      "America/Sao_Paulo",
+                      "Europe/London",
+                      "Europe/Paris",
+                      "Europe/Berlin",
+                      "Europe/Rome",
+                      "Europe/Moscow",
+                      "Africa/Johannesburg",
+                      "Asia/Dubai",
+                      "Asia/Kolkata",
+                      "Asia/Bangkok",
+                      "Asia/Singapore",
+                      "Asia/Shanghai",
+                      "Asia/Tokyo",
+                      "Australia/Sydney",
+                      "Pacific/Auckland",
+                  ];
+
+            function populateTimeZones() {
+                timezoneSelect.innerHTML = "";
+                adjustTimezoneInput.innerHTML = "";
+                timeZones.forEach((zone) => {
+                    const option = document.createElement("option");
+                    option.value = zone;
+                    option.textContent = zone.replace(/_/g, " ");
+                    timezoneSelect.appendChild(option.cloneNode(true));
+                    adjustTimezoneInput.appendChild(option);
+                });
+                timezoneSelect.value =
+                    Intl.DateTimeFormat().resolvedOptions().timeZone;
+                adjustTimezoneInput.value =
+                    Intl.DateTimeFormat().resolvedOptions().timeZone;
+            }
+
+            function openModal() {
+                modal.classList.remove("hidden");
+                modal.setAttribute("aria-hidden", "false");
+                labelInput.focus();
+            }
+
+            function closeModal() {
+                modal.classList.add("hidden");
+                modal.setAttribute("aria-hidden", "true");
+                form.reset();
+            }
+
+            function openAdjustModal(clock, index) {
+                adjustModal.classList.remove("hidden");
+                adjustModal.setAttribute("aria-hidden", "false");
+                adjustTitle.textContent = clock.label;
+                adjustZone.textContent = clock.timezone.replace(/_/g, " ");
+                adjustModal.dataset.timezone = clock.timezone;
+                adjustModal.dataset.index = String(index);
+                adjustLabelInput.value = clock.label;
+                adjustTimezoneInput.value = clock.timezone;
+                const offsetMinutes = loadOffset();
+                const adjustedNow = new Date(
+                    Date.now() + offsetMinutes * 60000,
+                );
+                adjustTimeInput.value = getCurrentTimeInZone(
+                    clock.timezone,
+                    adjustedNow,
+                );
+                adjustDateInput.value = getCurrentDateInZone(
+                    clock.timezone,
+                    adjustedNow,
+                );
+                adjustTimeInput.focus();
+            }
+
+            function closeAdjustModal() {
+                adjustModal.classList.add("hidden");
+                adjustModal.setAttribute("aria-hidden", "true");
+                adjustForm.reset();
+                delete adjustModal.dataset.timezone;
+                delete adjustModal.dataset.index;
+            }
+
+            function loadClocks() {
+                const stored = localStorage.getItem(storageKey);
+                if (!stored) return defaultClocks;
+                try {
+                    const parsed = JSON.parse(stored);
+                    return normalizeClocks(
+                        Array.isArray(parsed) ? parsed : defaultClocks,
+                    );
+                } catch (error) {
+                    return defaultClocks;
+                }
+            }
+
+            function saveClocks(clocks) {
+                localStorage.setItem(
+                    storageKey,
+                    JSON.stringify(normalizeClocks(clocks)),
+                );
+            }
+
+            function normalizeClocks(clocks) {
+                const cleaned = Array.isArray(clocks) ? clocks : [];
+                const lockedIndex = cleaned.findIndex((clock) => clock.locked);
+                if (lockedIndex === -1) return [...defaultClocks, ...cleaned];
+                const lockedClock = cleaned[lockedIndex];
+                const rest = cleaned.filter(
+                    (_, index) => index !== lockedIndex,
+                );
+                return [{ ...lockedClock, locked: true }, ...rest];
+            }
+
+            function loadOffset() {
+                const stored = localStorage.getItem(offsetKey);
+                return stored ? Number(stored) || 0 : 0;
+            }
+
+            function saveOffset(offsetMinutes) {
+                localStorage.setItem(offsetKey, String(offsetMinutes));
+                resetOffsetBtn.classList.toggle("hidden", offsetMinutes === 0);
+            }
+
+            function formatTime(date, timezone) {
+                return new Intl.DateTimeFormat("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                    timeZone: timezone,
+                }).format(date);
+            }
+
+            function formatDate(date, timezone) {
+                return new Intl.DateTimeFormat("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    timeZone: timezone,
+                }).format(date);
+            }
+
+            function getZoneParts(date, timezone) {
+                const formatter = new Intl.DateTimeFormat("en-US", {
+                    timeZone: timezone,
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                });
+                const parts = formatter.formatToParts(date);
+                const year = Number(
+                    parts.find((part) => part.type === "year")?.value ?? 0,
+                );
+                const month = Number(
+                    parts.find((part) => part.type === "month")?.value ?? 1,
+                );
+                const day = Number(
+                    parts.find((part) => part.type === "day")?.value ?? 1,
+                );
+                const hour = Number(
+                    parts.find((part) => part.type === "hour")?.value ?? 0,
+                );
+                const minute = Number(
+                    parts.find((part) => part.type === "minute")?.value ?? 0,
+                );
+                return { year, month, day, hour, minute };
+            }
+
+            function getCurrentTimeInZone(timezone, date = new Date()) {
+                const { hour, minute } = getZoneParts(date, timezone);
+                return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+            }
+
+            function getCurrentDateInZone(timezone, date = new Date()) {
+                const { year, month, day } = getZoneParts(date, timezone);
+                return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            }
+
+            function formatOffset(offsetMinutes) {
+                if (offsetMinutes === 0) return "On current time";
+                const abs = Math.abs(offsetMinutes);
+                const days = Math.floor(abs / 1440);
+                const hours = Math.floor((abs % 1440) / 60);
+                const minutes = abs % 60;
+                const sign = offsetMinutes > 0 ? "+" : "-";
+                const direction = offsetMinutes > 0 ? "ahead" : "behind";
+                const pieces = [];
+                if (days) pieces.push(`${days}d`);
+                if (hours) pieces.push(`${hours}h`);
+                if (minutes) pieces.push(`${minutes}m`);
+                return `Adjusted ${sign}${pieces.join(" ")} (${direction})`;
+            }
+
+            function renderClocks(clocks) {
+                clockGrid.innerHTML = "";
+                clocks.forEach((clock, index) => {
+                    const clone = template.content.cloneNode(true);
+                    const card = clone.querySelector("article");
+                    card.querySelector(".label").textContent = clock.label;
+                    card.querySelector("p").textContent =
+                        clock.timezone.replace(/_/g, " ");
+                    const deleteBtn = card.querySelector(".delete-btn");
+                    if (clock.locked) {
+                        deleteBtn.classList.add("hidden");
+                    } else {
+                        deleteBtn.addEventListener("click", (event) => {
+                            event.stopPropagation();
+                            const updated = clocks.filter(
+                                (_, i) => i !== index,
+                            );
+                            saveClocks(updated);
+                            renderClocks(updated);
+                        });
+                    }
+
+                    card.dataset.timezone = clock.timezone;
+                    card.dataset.label = clock.label;
+                    card.dataset.index = String(index);
+                    card.addEventListener("click", () =>
+                        openAdjustModal(clock, index),
+                    );
+                    clockGrid.appendChild(clone);
+                });
+            }
+
+            function updateClockTimes() {
+                const offsetMinutes = loadOffset();
+                const adjustedNow = new Date(
+                    Date.now() + offsetMinutes * 60000,
+                );
+                document
+                    .querySelectorAll("#clockGrid article")
+                    .forEach((card) => {
+                        const timezone = card.dataset.timezone;
+                        card.querySelector(".time").textContent = formatTime(
+                            adjustedNow,
+                            timezone,
+                        );
+                        card.querySelector(".date").textContent = formatDate(
+                            adjustedNow,
+                            timezone,
+                        );
+                        card.querySelector(".offset").textContent =
+                            formatOffset(offsetMinutes);
+                        const hour = Number(
+                            new Intl.DateTimeFormat("en-US", {
+                                hour: "2-digit",
+                                hour12: false,
+                                timeZone: timezone,
+                            }).format(adjustedNow),
+                        );
+                        const isNight = hour >= 19 || hour < 7;
+                        const icon = card.querySelector(".day-icon");
+                        icon.innerHTML = isNight
+                            ? '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 13.4A8.5 8.5 0 1 1 10.6 3.2a7 7 0 0 0 10.2 10.2Z"/></svg>'
+                            : '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>';
+                    });
+            }
+
+            addClockBtn.addEventListener("click", openModal);
+            closeModalBtn.addEventListener("click", closeModal);
+            cancelModalBtn.addEventListener("click", closeModal);
+            closeAdjustBtn.addEventListener("click", closeAdjustModal);
+            cancelAdjustBtn.addEventListener("click", closeAdjustModal);
+            modal.addEventListener("click", (event) => {
+                if (event.target === modal) closeModal();
+            });
+            adjustModal.addEventListener("click", (event) => {
+                if (event.target === adjustModal) closeAdjustModal();
+            });
+
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const clocks = loadClocks();
+                clocks.push({
+                    label: labelInput.value.trim(),
+                    timezone: timezoneSelect.value,
+                });
+                saveClocks(clocks);
+                renderClocks(clocks);
+                updateClockTimes();
+                closeModal();
+            });
+
+            adjustForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const timezone = adjustModal.dataset.timezone;
+                const nextTimezone = adjustTimezoneInput.value;
+                const index = Number(adjustModal.dataset.index);
+                const inputValue = adjustTimeInput.value;
+                const inputDate = adjustDateInput.value;
+                const nextLabel = adjustLabelInput.value.trim();
+                if (
+                    !inputValue ||
+                    !timezone ||
+                    Number.isNaN(index) ||
+                    !inputDate ||
+                    !nextLabel ||
+                    !nextTimezone
+                )
+                    return;
+
+                const [inputHour, inputMinute] = inputValue
+                    .split(":")
+                    .map(Number);
+                const {
+                    year,
+                    month,
+                    day,
+                    hour: currentHour,
+                    minute: currentMinute,
+                } = getZoneParts(new Date(), timezone);
+                const currentDayUTC = Date.UTC(year, month - 1, day);
+                const [inputYear, inputMonth, inputDay] = inputDate
+                    .split("-")
+                    .map(Number);
+                const inputDayUTC = Date.UTC(
+                    inputYear,
+                    inputMonth - 1,
+                    inputDay,
+                );
+                const dayDelta = Math.round(
+                    (inputDayUTC - currentDayUTC) / 86400000,
+                );
+                const currentTotal = currentHour * 60 + currentMinute;
+                const inputTotal =
+                    inputHour * 60 + inputMinute + dayDelta * 1440;
+                const offsetMinutes = inputTotal - currentTotal;
+
+                const clocks = loadClocks();
+                if (clocks[index]) {
+                    clocks[index] = {
+                        ...clocks[index],
+                        label: nextLabel,
+                        timezone: nextTimezone,
+                    };
+                    saveClocks(clocks);
+                    renderClocks(clocks);
+                }
+                saveOffset(offsetMinutes);
+                updateClockTimes();
+                closeAdjustModal();
+            });
+
+            resetOffsetBtn.addEventListener("click", () => {
+                saveOffset(0);
+                updateClockTimes();
+            });
+
+            populateTimeZones();
+            applyTheme();
+            const initialClocks = loadClocks();
+            renderClocks(initialClocks);
+            saveOffset(loadOffset());
+            updateClockTimes();
+            setInterval(updateClockTimes, 1000);
+        </script>
+    </body>
 </html>

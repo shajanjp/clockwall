@@ -1,27 +1,42 @@
 let aryIannaTimeZones = Intl.supportedValuesOf("timeZone");
-let contacts = [
-  {
-    name: "Eldhose P Baby",
-    timeZone: "Asia/Dubai",
-  },
-  {
-    name: "Peter Devasia",
-    timeZone: "America/Los_Angeles",
-  },
-  {
-    name: "Akash Manoj",
-    timeZone: "Asia/Kolkata",
-  },
-  {
-    name: "Prince Elias George",
-    timeZone: "America/Los_Angeles"
-  },
-  {
-    name: "Lakshmipriya M",
-    timeZone: "Europe/Copenhagen"
-  }
-];
+let contacts = [];
 const contactsListElm = document.getElementById("contacts-list");
+
+function loadContacts() {
+  const storedContacts = localStorage.getItem('contacts');
+  if (storedContacts) {
+    contacts = JSON.parse(storedContacts);
+  } else {
+    contacts = [
+      {
+        name: "Eldhose P Baby",
+        timeZone: "Asia/Dubai",
+      },
+      {
+        name: "Peter Devasia",
+        timeZone: "America/Los_Angeles",
+      },
+      {
+        name: "Akash Manoj",
+        timeZone: "Asia/Kolkata",
+      },
+      {
+        name: "Prince Elias George",
+        timeZone: "America/Los_Angeles"
+      },
+      {
+        name: "Lakshmipriya M",
+        timeZone: "Europe/Copenhagen"
+      }
+    ];
+  }
+}
+
+function saveContacts() {
+  localStorage.setItem('contacts', JSON.stringify(contacts));
+}
+
+loadContacts();
 
 let timeOffset = 0;
 let selectedContact = null;
@@ -38,22 +53,17 @@ function getContactTimeCardHtml(contact) {
   nameContainerElm.setAttribute("class", "text-xl");
   nameContainerElm.appendChild(document.createTextNode(contact.name));
 
-//   const timeZoneElm = document.createElement("div");
-//   timeZoneElm.setAttribute("class", "text-gray-600 text-sm");
-//   timeZoneElm.appendChild(document.createTextNode(contact.timeZone));
-
   const timeElm = document.createElement("span");
   timeElm.appendChild(document.createTextNode('Jan 1, 00:00 AM'));
 
   const nameAndDetailsContainerElm = document.createElement("div");
   nameAndDetailsContainerElm.appendChild(nameContainerElm);
-//   nameAndDetailsContainerElm.appendChild(timeZoneElm);
   nameAndDetailsContainerElm.appendChild(timeElm);
 
   const containerElm = document.createElement("div");
   containerElm.setAttribute(
     "class",
-    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto cursor-pointer"
+    "rounded-2xl shadow-lg p-6 flex flex-row gap-4 items-center w-full sm:w-auto cursor-pointer relative"
   );
 
   if(contact.self) {
@@ -64,6 +74,17 @@ function getContactTimeCardHtml(contact) {
     containerElm.classList.add('bg-white', 'dark:bg-gray-600');
     nameContainerElm.classList.add('text-gray-800', 'dark:text-gray-200')
     timeElm.classList.add("text-gray-700", "dark:text-gray-400");
+
+    const removeButton = document.createElement('button');
+    removeButton.setAttribute('class', 'absolute top-2 right-2 text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 z-10');
+    removeButton.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+    removeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      contacts = contacts.filter(c => c.name !== contact.name);
+      saveContacts();
+      containerElm.remove();
+    });
+    containerElm.appendChild(removeButton);
   }
   containerElm.setAttribute("id", formatedPersonName);
 
@@ -178,6 +199,7 @@ addNewPersonForm.addEventListener("submit", (e) => {
     newContact.timeElement = timeElement;
     newContact.imageElement = imageElement;
     contacts.push(newContact);
+    saveContacts();
     updateContactCard(newContact);
     contactsListElm.appendChild(element);
     addNewPersonOverlay.style.display = "none";
